@@ -1,6 +1,7 @@
 module Main where
 
-import Lib
+{-import Lib-}
+import Data.Transit
 
 main :: IO ()
-main = someFunc
+main = fromFile "test-message2.msgpack"
