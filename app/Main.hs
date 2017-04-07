@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
+import Prelude
+
 import Lib (readMessage)
 import Network.HTTP.Types.Status (status500)
 import Web.Scotty

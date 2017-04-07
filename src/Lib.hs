@@ -5,6 +5,8 @@ module Lib
     ( readMessage
     ) where
 
+import Prelude
+
 import Control.Applicative ( (<$>) )
 import Control.Lens
 
@@ -55,7 +57,7 @@ messageFromMap m = let lookup' k = M.lookup (TransitKeyword k) m in
 
 messageToMap :: Message -> Transit
 messageToMap m = TransitMap $ M.fromList [
-      (TransitKeyword "id", TransitUUID (m ^. messageId))
+     (TransitKeyword "id", TransitUUID (m ^. messageId))
    , (TransitKeyword "group-id", TransitUUID (m ^. messageGroupId))
    , (TransitKeyword "thread-id", TransitUUID (m ^. messageThreadId))
    , (TransitKeyword "user-id", TransitUUID (m ^. messageUserId))
@@ -83,5 +85,5 @@ dumpMessage = encodeLazy . toMessagePack
 readMessage :: BL.ByteString -> Either String BL.ByteString
 readMessage msg = do
   obj <- decodeLazy msg
-  let transit = toTransit (obj :: MP.Object)
-  return $ dumpMessage (fromTransit transit >>= (Just . handleMessage))
+  let transitIn = toTransit (obj :: MP.Object)
+  return $ dumpMessage . fmap handleMessage . fromTransit $ transitIn

@@ -7,6 +7,7 @@ module Data.Transit (
   , toTransit
 ) where
 
+import Prelude
 import Data.Bits
 import Data.ByteString as B
 import Data.Int
@@ -48,11 +49,20 @@ uuid64s u = (hi64, lo64)
     hi64 = (fromIntegral hihi `shiftL` 32) + fromIntegral hilo
     lo64 = (fromIntegral lohi `shiftL` 32) + fromIntegral lolo
 
--- TODO: something is going wrong here
+
+msgpackInteger :: (Integral a, Bits a) => a -> MP.Object
+msgpackInteger i = if i > (1 `shiftL` 63) then
+                    MP.ObjectInt . negate $ twosComplement (fromIntegral i)
+                  else
+                    MP.ObjectUInt $ fromIntegral i
+  where
+    bmask = (2 `shiftL` 64 - 1)
+    twosComplement n = -(n .&. bmask) + (n .&. complement bmask)
+
 uuidToMsgpack :: UU.UUID -> MP.Object
 uuidToMsgpack u = MP.ObjectArray [MP.ObjectString "~#u", MP.ObjectArray [hi, lo]]
   where
-    (hi, lo) = bi (MP.ObjectUInt . fromIntegral) $ uuid64s u
+    (hi, lo) = bi msgpackInteger $ uuid64s u
 
 splitWord :: Word64 -> (Word32, Word32)
 splitWord w64 = (hi, lo)
