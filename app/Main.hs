@@ -1,7 +1,12 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Main where
 
-{-import Lib-}
-import Data.Transit
+import Data.Text.Lazy (pack)
+import Lib (readMessage)
+import Web.Scotty
 
 main :: IO ()
-main = fromFile "test-message2.msgpack"
+main = scotty 3030 $
+  post "/" $ do
+    msg <- body
+    text $ pack . show . readMessage $ msg

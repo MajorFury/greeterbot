@@ -1,14 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ViewPatterns #-}
 module Data.Transit (
-  fromFile
+    Transit(..)
+  , Transitable
+  , fromTransit
+  , toTransit
 ) where
 
 import Data.Bits
 import Data.ByteString as B
 import Data.Int
 import Data.MessagePack as MP
-import Data.Serialize
 import Data.Text as T
 import Data.Text.Encoding
 import Data.UUID as UU
@@ -105,10 +107,19 @@ instance Transitable MP.Object where
   fromTransit (TransitExt i bs)  = MP.ObjectExt i bs
 
 
+{-
+msgpackToTransit :: MP.Object -> Transit
+msgpackToTransit = toTransit
+-}
 
+{-transitToMsgpack :: Transit -> MP.Object-}
+{-transitToMsgpack = fromTransit-}
+
+{-
 fromFile :: FilePath -> IO ()
 fromFile f = do
   content <- B.readFile f
   case decode content of
     Left err -> Prelude.putStrLn $ "ERROR: " ++ err
-    Right obj -> print $ toTransit (obj::MP.Object)
+    Right obj -> print $ msgpackToTransit obj
+-}
