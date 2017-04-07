@@ -17,7 +17,8 @@ library
   hs-source-dirs:      src
   exposed-modules:     Lib
                      , Data.Transit
-  build-depends:       base >= 4.7 && < 5
+                     , Prelude
+  build-depends:       base-noprelude >= 4.7 && < 5
                      , text
                      , messagepack
                      , cereal
@@ -25,13 +26,14 @@ library
                      , uuid
                      , lens
                      , containers
+                     , classy-prelude
   default-language:    Haskell2010
 
 executable haskellbot-exe
   hs-source-dirs:      app
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base
+  build-depends:       base-noprelude
                      , haskellbot
                      , text
                      , scotty
@@ -43,7 +45,7 @@ test-suite haskellbot-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
-  build-depends:       base
+  build-depends:       base-noprelude
                      , haskellbot
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010

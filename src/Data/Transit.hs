@@ -12,10 +12,9 @@ import Data.ByteString as B
 import Data.Int
 import Data.MessagePack as MP
 import Data.Text as T
-import Data.Text.Encoding
+import qualified Data.Text.Encoding as Enc
 import Data.UUID as UU
 import qualified Data.Map as M
-import Data.Word
 
 data Transit = TransitNil
              | TransitString    Text
@@ -39,8 +38,8 @@ class Transitable a where
   fromTransit :: Transit -> a
   toTransit :: a -> Transit
 
-fork :: (a -> b) -> (a, a) -> (b, b)
-fork f (x, y) = (f x, f y)
+bi :: (a -> b) -> (a, a) -> (b, b)
+bi f (x, y) = (f x, f y)
 
 uuid64s :: UU.UUID -> (Word64, Word64)
 uuid64s u = (hi64, lo64)
@@ -53,7 +52,7 @@ uuid64s u = (hi64, lo64)
 uuidToMsgpack :: UU.UUID -> MP.Object
 uuidToMsgpack u = MP.ObjectArray [MP.ObjectString "~#u", MP.ObjectArray [hi, lo]]
   where
-    (hi, lo) = fork (MP.ObjectUInt . fromIntegral) $ uuid64s u
+    (hi, lo) = bi (MP.ObjectUInt . fromIntegral) $ uuid64s u
 
 splitWord :: Word64 -> (Word32, Word32)
 splitWord w64 = (hi, lo)
@@ -86,11 +85,11 @@ instance Transitable MP.Object where
   toTransit (MP.ObjectBool b)   = TransitBool b
   toTransit (MP.ObjectFloat f)  = TransitFloat $ realToFrac f
   toTransit (MP.ObjectDouble f) = TransitFloat f
-  toTransit (ObjectString s)    = transitFromString $ decodeUtf8 s
+  toTransit (ObjectString s)    = transitFromString $ Enc.decodeUtf8 s
   toTransit (ObjectBinary bs)   = TransitBytes bs
   toTransit (ObjectExt i bs)    = TransitExt i bs
   toTransit (ObjectArray obs)   = transitFromArray obs
-  toTransit (ObjectMap m)       = TransitMap . M.fromList . fmap (fork toTransit) . M.toList $ m
+  toTransit (ObjectMap m)       = TransitMap . M.fromList . fmap (bi toTransit) . M.toList $ m
 
   fromTransit TransitNil         = MP.ObjectNil
   fromTransit (TransitInteger i) = MP.ObjectUInt $ fromIntegral i
@@ -99,11 +98,11 @@ instance Transitable MP.Object where
   fromTransit (TransitFloat f)   = MP.ObjectDouble $ realToFrac f
   fromTransit (TransitDecimal f)  = MP.ObjectDouble $ realToFrac f
   fromTransit (TransitArray obs) = MP.ObjectArray $ fmap fromTransit obs
-  fromTransit (TransitMap m)     = MP.ObjectMap . M.fromList . fmap (fork fromTransit) . M.toList $ m
-  fromTransit (TransitString t)  = MP.ObjectString $ encodeUtf8 t
+  fromTransit (TransitMap m)     = MP.ObjectMap . M.fromList . fmap (bi fromTransit) . M.toList $ m
+  fromTransit (TransitString t)  = MP.ObjectString $ Enc.encodeUtf8 t
   fromTransit (TransitBytes bs)  = MP.ObjectBinary bs
-  fromTransit (TransitKeyword k) = MP.ObjectString $ encodeUtf8 ("~:" `T.append` k)
-  fromTransit (TransitSymbol s)  = MP.ObjectString $ encodeUtf8 ("~$" `T.append` s)
+  fromTransit (TransitKeyword k) = MP.ObjectString $ Enc.encodeUtf8 ("~:" `T.append` k)
+  fromTransit (TransitSymbol s)  = MP.ObjectString $ Enc.encodeUtf8 ("~$" `T.append` s)
   fromTransit (TransitUUID u)    = uuidToMsgpack u
   fromTransit (TransitExt i bs)  = MP.ObjectExt i bs
 

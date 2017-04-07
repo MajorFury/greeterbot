@@ -9,7 +9,6 @@ import Control.Applicative ( (<$>) )
 import Control.Lens
 
 import Data.Serialize (decodeLazy, encodeLazy)
-import Data.Text
 import Data.Transit
 import Data.UUID
 import qualified Data.ByteString.Lazy as BL
