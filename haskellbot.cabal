@@ -28,6 +28,7 @@ library
                      , lens
                      , containers
                      , classy-prelude
+                     , yaml
                      , wreq
   default-language:    Haskell2010
 
@@ -41,6 +42,7 @@ executable haskellbot-exe
                      , scotty
                      , bytestring
                      , http-types
+                     , yaml
   default-language:    Haskell2010
 
 test-suite haskellbot-test
