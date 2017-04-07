@@ -51,10 +51,8 @@ uuid64s u = (hi64, lo64)
 
 
 msgpackInteger :: (Integral a, Bits a) => a -> MP.Object
-msgpackInteger i = if i > (1 `shiftL` 63) then
-                    MP.ObjectInt . negate $ twosComplement (fromIntegral i)
-                  else
-                    MP.ObjectUInt $ fromIntegral i
+msgpackInteger i | i > (1 `shiftL` 63) = MP.ObjectInt . negate . twosComplement . fromIntegral $ i
+                 | otherwise = MP.ObjectUInt $ fromIntegral i
   where
     bmask = (2 `shiftL` 64 - 1)
     twosComplement n = -(n .&. bmask) + (n .&. complement bmask)
