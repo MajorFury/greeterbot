@@ -8,7 +8,7 @@ module Lib
 import Control.Applicative ( (<$>) )
 import Control.Lens
 
-import Data.Serialize (decodeLazy)
+import Data.Serialize (decodeLazy, encodeLazy)
 import Data.Text
 import Data.Transit
 import Data.UUID
@@ -75,8 +75,14 @@ instance Transitable (Maybe Message) where
 handleMessage :: Message -> Message
 handleMessage msg = msg & messageContent .~ "Hello from Haskell"
 
-readMessage :: BL.ByteString -> Either String Transit
+toMessagePack :: Maybe Message -> MP.Object
+toMessagePack = fromTransit . toTransit
+
+dumpMessage :: Maybe Message -> BL.ByteString
+dumpMessage = encodeLazy . toMessagePack
+
+readMessage :: BL.ByteString -> Either String BL.ByteString
 readMessage msg = do
   obj <- decodeLazy msg
   let transit = toTransit (obj :: MP.Object)
-  return $ toTransit (fromTransit transit >>= (Just . handleMessage))
+  return $ dumpMessage (fromTransit transit >>= (Just . handleMessage))

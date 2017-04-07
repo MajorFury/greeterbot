@@ -49,6 +49,7 @@ uuid64s u = (hi64, lo64)
     hi64 = (fromIntegral hihi `shiftL` 32) + fromIntegral hilo
     lo64 = (fromIntegral lohi `shiftL` 32) + fromIntegral lolo
 
+-- TODO: something is going wrong here
 uuidToMsgpack :: UU.UUID -> MP.Object
 uuidToMsgpack u = MP.ObjectArray [MP.ObjectString "~#u", MP.ObjectArray [hi, lo]]
   where
