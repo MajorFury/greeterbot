@@ -102,8 +102,8 @@ instance Transitable MP.Object where
   toTransit (ObjectMap m)       = TransitMap . M.fromList . fmap (bi toTransit) . M.toList $ m
 
   fromTransit TransitNil         = MP.ObjectNil
-  fromTransit (TransitInteger i) = MP.ObjectUInt $ fromIntegral i
-  fromTransit (TransitInt64 i)   = MP.ObjectInt i
+  fromTransit (TransitInteger i) = msgpackInteger i
+  fromTransit (TransitInt64 i)   = msgpackInteger i
   fromTransit (TransitBool b)    = MP.ObjectBool b
   fromTransit (TransitFloat f)   = MP.ObjectDouble $ realToFrac f
   fromTransit (TransitDecimal f)  = MP.ObjectDouble $ realToFrac f

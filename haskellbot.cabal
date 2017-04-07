@@ -17,6 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Lib
                      , Data.Transit
+                     , Data.Message
                      , Prelude
   build-depends:       base-noprelude >= 4.7 && < 5
                      , text
@@ -27,6 +28,7 @@ library
                      , lens
                      , containers
                      , classy-prelude
+                     , wreq
   default-language:    Haskell2010
 
 executable haskellbot-exe
