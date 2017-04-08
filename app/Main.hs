@@ -17,7 +17,8 @@ main = do
     Nothing -> print ("Couldn't load config"::Text)
     Just c -> do
       scotty 3030 $
-        post "/" $ do
+        put "/message" $ do
+          -- TODO: verify hmac
           msgBody <- body
           case readMessage msgBody of
             Nothing -> do status status500

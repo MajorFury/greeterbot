@@ -6,6 +6,7 @@ module Data.Message
   (   readMessage
     , dumpMessage
     , Message(..)
+    , messageId
     , messageContent
   ) where
 
