@@ -4,6 +4,7 @@ module Lib (
   , Config
 ) where
 
+import Prelude
 import Control.Lens
 import Data.ByteString (ByteString)
 import Data.Message

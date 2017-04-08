@@ -1,21 +1,28 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE ViewPatterns #-}
 module Data.Transit (
     Transit(..)
   , Transitable
   , fromTransit
   , toTransit
+  , _TransitUUID
+  , _TransitString
+  , _TransitArray
 ) where
 
 import Prelude
+
+import Control.Lens
+
 import Data.Bits
 import Data.ByteString as B
 import Data.Int
+import qualified Data.Map as M
 import Data.MessagePack as MP
 import Data.Text as T
 import qualified Data.Text.Encoding as Enc
 import Data.UUID as UU
-import qualified Data.Map as M
 
 data Transit = TransitNil
              | TransitString    Text
@@ -34,6 +41,7 @@ data Transit = TransitNil
   deriving (Eq, Ord, Show)
              -- TODO: timestamps, URI, quoted values
              -- TODO: set, list, link, map with composite keys
+makePrisms ''Transit
 
 class Transitable a where
   fromTransit :: Transit -> a
