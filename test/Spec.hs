@@ -18,9 +18,9 @@ main = hspec $ do
                                                      , (TransitKeyword "mentioned-tag-ids", TransitArray [TransitUUID UUID.nil])
                                                      , (TransitKeyword "mentioned-user-ids", TransitArray [])]))
                (Just $ Message { _messageId = UUID.nil
-                , _messageGroupId = UUID.nil
-                , _messageUserId  = UUID.nil
-                , _messageThreadId  = UUID.nil
-                , _messageContent  = "foobar"
-                , _messageMentionedTags = [UUID.nil]
-                , _messageMentionedUsers  = [] })
+                               , _messageGroupId = UUID.nil
+                               , _messageUserId  = UUID.nil
+                               , _messageThreadId  = UUID.nil
+                               , _messageContent  = "foobar"
+                               , _messageMentionedTags = [UUID.nil]
+                               , _messageMentionedUsers  = [] })
