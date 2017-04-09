@@ -4,11 +4,21 @@ module Main where
 
 import Prelude
 
+import Crypto.MAC.HMAC (hmac, hmacGetDigest)
+import Crypto.Hash (Digest)
+import Crypto.Hash.Algorithms (SHA256)
+import qualified Data.ByteString as B
+import qualified Data.Text.Lazy as TL
 import Data.Message (readMessage)
 import qualified Data.Yaml as Y
-import Lib (Config, handleMessage)
-import Network.HTTP.Types.Status (status200, status500)
+import Lib (Config, botToken, handleMessage)
+import Network.HTTP.Types.Status (status200, status400, status500)
 import Web.Scotty
+
+verifyHMAC :: Maybe B.ByteString -> B.ByteString -> B.ByteString -> Bool
+verifyHMAC Nothing _ _ = False
+verifyHMAC (Just givenMac) macKey msgBody =
+  givenMac == encodeUtf8 (tshow (hmacGetDigest $ hmac macKey msgBody :: Digest SHA256))
 
 main :: IO ()
 main = do
@@ -18,11 +28,16 @@ main = do
     Just c -> do
       scotty 3030 $
         put "/message" $ do
-          -- TODO: verify hmac
+          requestMac <- header "X-Braid-Signature"
+          _ <- liftIO $ print requestMac
           msgBody <- body
-          case readMessage msgBody of
-            Nothing -> do status status500
-                          text "Dunno lol"
-            Just msg -> do _ <- liftIO $ fork (handleMessage c msg)
-                           status status200
-                           text "ok"
+          if verifyHMAC (fmap (encodeUtf8 . TL.toStrict) requestMac) (botToken c) (toStrict msgBody) then
+            case readMessage msgBody of
+              Nothing -> do status status500
+                            text "Dunno lol"
+              Just msg -> do _ <- liftIO $ fork (handleMessage c msg)
+                             status status200
+                             text "ok"
+          else
+            do status status400
+               text "Bad hmac"

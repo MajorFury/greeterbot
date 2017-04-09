@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Lib (
     handleMessage
-  , Config
+  , Config(..)
 ) where
 
 import Prelude
