@@ -40,7 +40,7 @@ data Message = Message {
   , _messageContent        :: Text
   , _messageMentionedTags  :: [UUID]
   , _messageMentionedUsers :: [UUID]
-} deriving (Show)
+} deriving (Eq, Show)
 makeLenses ''Message
 
 messageFromMap :: M.Map Transit Transit -> Maybe Message
