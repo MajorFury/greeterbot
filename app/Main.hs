@@ -29,7 +29,6 @@ main = do
       scotty 3030 $
         put "/message" $ do
           requestMac <- header "X-Braid-Signature"
-          _ <- liftIO $ print requestMac
           msgBody <- body
           if verifyHMAC (fmap (encodeUtf8 . TL.toStrict) requestMac) (botToken c) (toStrict msgBody) then
             case readMessage msgBody of
