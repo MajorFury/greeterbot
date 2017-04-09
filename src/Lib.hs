@@ -8,6 +8,8 @@ import Prelude
 import Control.Lens
 import Data.ByteString (ByteString)
 import Data.Message
+import Data.Text (append)
+import Data.UUID (toText, nil)
 import qualified Data.UUID.V4 as UUID
 import qualified Data.Yaml as Y
 import Data.Yaml (FromJSON(..), (.:))
@@ -34,9 +36,17 @@ sendMessage conf msg = do let body = dumpMessage $ Just msg
                           print r
 
 responseTo :: Message -> IO Message
-responseTo m = do nextId <- UUID.nextRandom
-                  return $ m & messageContent .~ "Hi there"
-                             & messageId .~ nextId
+responseTo m = do msgId <- UUID.nextRandom
+                  threadId <- UUID.nextRandom
+                  let mentioned = "@" `append` (m ^. messageUserId . to toText)
+                  return $ Message { _messageContent = (append "Hi there, " mentioned)
+                                   , _messageId = msgId
+                                   , _messageGroupId = m ^. messageGroupId
+                                   , _messageUserId = nil
+                                   , _messageThreadId = threadId
+                                   , _messageMentionedTags = []
+                                   , _messageMentionedUsers = [(m ^. messageUserId)]
+                                   }
 
 handleMessage :: Config -> Message -> IO ()
 handleMessage conf msg = (responseTo msg) >>= sendMessage conf
