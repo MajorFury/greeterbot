@@ -2,12 +2,18 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE RecordWildCards #-}
 module Data.Message
   (   readMessage
     , dumpMessage
     , Message(..)
     , messageId
     , messageContent
+    , messageGroupId
+    , messageMentionedTags
+    , messageMentionedUsers
+    , messageThreadId
+    , messageUserId
   ) where
 
 import Prelude
@@ -49,14 +55,14 @@ messageFromMap m = let lookup' k = at (TransitKeyword k) . _Just in
     Just (m ^.. lookup' "mentioned-user-ids" . _TransitArray . each . _TransitUUID)
 
 messageToMap :: Message -> Transit
-messageToMap m = TransitMap $ M.fromList [
-     (TransitKeyword "id", TransitUUID (m ^. messageId))
-   , (TransitKeyword "group-id", TransitUUID (m ^. messageGroupId))
-   , (TransitKeyword "thread-id", TransitUUID (m ^. messageThreadId))
-   , (TransitKeyword "user-id", TransitUUID (m ^. messageUserId))
-   , (TransitKeyword "content", TransitString (m ^. messageContent))
-   , (TransitKeyword "mentioned-tag-ids", TransitArray $ TransitUUID <$> m ^. messageMentionedTags)
-   , (TransitKeyword "mentioned-user-ids", TransitArray $ TransitUUID <$> m ^. messageMentionedUsers)
+messageToMap Message{..} = TransitMap $ M.fromList [
+     (TransitKeyword "id"                 ,  TransitUUID _messageId)
+   , (TransitKeyword "group-id"           ,  TransitUUID _messageGroupId)
+   , (TransitKeyword "thread-id"          ,  TransitUUID _messageThreadId)
+   , (TransitKeyword "user-id"            ,  TransitUUID _messageUserId)
+   , (TransitKeyword "content"            ,  TransitString _messageContent)
+   , (TransitKeyword "mentioned-tag-ids"  ,  TransitArray $ TransitUUID <$> _messageMentionedTags)
+   , (TransitKeyword "mentioned-user-ids" ,  TransitArray $ TransitUUID <$> _messageMentionedUsers)
   ]
 
 instance Transitable (Maybe Message) where
