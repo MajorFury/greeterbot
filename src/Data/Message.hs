@@ -61,8 +61,8 @@ messageToMap Message{..} = TransitMap $ M.fromList [
    , (TransitKeyword "thread-id"          ,  TransitUUID _messageThreadId)
    , (TransitKeyword "user-id"            ,  TransitUUID _messageUserId)
    , (TransitKeyword "content"            ,  TransitString _messageContent)
-   , (TransitKeyword "mentioned-tag-ids"  ,  TransitArray $ TransitUUID <$> _messageMentionedTags)
-   , (TransitKeyword "mentioned-user-ids" ,  TransitArray $ TransitUUID <$> _messageMentionedUsers)
+   , (TransitKeyword "mentioned-tag-ids"  ,  TransitArray $ map TransitUUID _messageMentionedTags)
+   , (TransitKeyword "mentioned-user-ids" ,  TransitArray $ map TransitUUID _messageMentionedUsers)
   ]
 
 instance Transitable (Maybe Message) where
