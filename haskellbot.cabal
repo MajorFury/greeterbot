@@ -17,6 +17,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Lib
                      , Data.Transit
+                     , Data.Event
                      , Data.Message
                      , Prelude
   build-depends:       base-noprelude >= 4.7 && < 5

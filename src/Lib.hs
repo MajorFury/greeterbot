@@ -1,15 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Lib (
     handleMessage
+  , handleEvent
   , Config(..)
 ) where
 
 import Prelude
 import Control.Lens
 import Data.ByteString (ByteString)
+import Data.Event
 import Data.Message
-import Data.Text (append)
-import Data.UUID (toText, nil)
+import Data.UUID (UUID, toText, nil)
 import qualified Data.UUID.V4 as UUID
 import qualified Data.Yaml as Y
 import Data.Yaml (FromJSON(..), (.:))
@@ -35,11 +36,14 @@ sendMessage conf msg = do let body = dumpMessage $ Just msg
                           r <- postWith opts ((braidUrl conf) ++ "/bots/message") body
                           print r
 
+welcomeMessage :: UUID -> Text
+welcomeMessage userId = fold ["Welcome to Braid, @" , toText userId , "!\n"
+                             , "I am the greeter bot"]
+
 responseTo :: Message -> IO Message
 responseTo m = do msgId <- UUID.nextRandom
                   threadId <- UUID.nextRandom
-                  let mentioned = "@" `append` (m ^. messageUserId . to toText)
-                  return $ Message { _messageContent = (append "Hi there, " mentioned)
+                  return $ Message { _messageContent = m ^. messageUserId . to welcomeMessage
                                    , _messageId = msgId
                                    , _messageGroupId = m ^. messageGroupId
                                    , _messageUserId = nil
@@ -50,3 +54,6 @@ responseTo m = do msgId <- UUID.nextRandom
 
 handleMessage :: Config -> Message -> IO ()
 handleMessage conf msg = (responseTo msg) >>= sendMessage conf
+
+handleEvent ::  Config -> Event -> IO ()
+handleEvent _ evt = print evt
