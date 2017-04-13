@@ -82,11 +82,3 @@ readMessage :: BL.ByteString -> Maybe Message
 readMessage bs = case decodeLazy bs of
                   Left _ -> Nothing
                   Right obj -> fromTransit (toTransit (obj :: MP.Object))
-
-{-
-readMessage :: BL.ByteString -> Either String BL.ByteString
-readMessage msg = do
-  obj <- decodeLazy msg
-  let transitIn = toTransit (obj :: MP.Object)
-  return $ dumpMessage . fmap handleMessage . fromTransit $ transitIn
--}
