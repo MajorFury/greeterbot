@@ -1,5 +1,7 @@
 A [Braid](https://braid.chat) chatbot in Haskell.
 
+Build with `stack build --pedantic` and run with `stack exec haskellbot-exe`.
+
 Usage: Create a `conf.yaml` file that looks like this:
 
 ```yaml
