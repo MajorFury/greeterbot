@@ -3,8 +3,10 @@ import Test.Hspec
 
 import qualified Data.Map as M
 import qualified Data.UUID as UUID
+import qualified Data.UUID.V4 as UUIDv4
 import Data.Transit
 import Data.Message
+import Data.Event
 
 main :: IO ()
 main = hspec $ do
@@ -24,3 +26,13 @@ main = hspec $ do
                                , _messageContent  = "foobar"
                                , _messageMentionedTags = [UUID.nil]
                                , _messageMentionedUsers  = [] })
+  describe "Event from Transit" $ do
+    it "can parse an event from a transit map" $ do
+      userId <- UUIDv4.nextRandom
+      groupId <- UUIDv4.nextRandom
+      shouldBe (fromTransit (TransitArray [(TransitKeyword "braid.client/new-user")
+                                          , TransitMap (M.fromList [ (TransitKeyword "id", TransitUUID userId)
+                                                                   , (TransitKeyword "group-ids", TransitArray [TransitUUID groupId])
+                                                                   ])
+                                          ]))
+               (NewUser [groupId] userId)
