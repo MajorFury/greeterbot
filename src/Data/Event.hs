@@ -11,6 +11,8 @@ module Data.Event (
   , _Other
   , readEvent
   , dumpEvent
+  , UserId
+  , GroupId
 ) where
 
 import Prelude
@@ -43,7 +45,7 @@ transitLookup k = at (TransitKeyword k) . _Just
 
 makeNewUser :: [Transit] -> Maybe Event
 makeNewUser [TransitMap m] = NewUser <$>
-                              Just (m ^.. transitLookup "group-ids" . _TransitArray . each . _TransitUUID) <*>
+                              Just (m ^.. transitLookup "group-ids" . _TransitList . each . _TransitUUID) <*>
                               m ^? transitLookup "id" . _TransitUUID
 makeNewUser _ = Nothing
 

@@ -32,7 +32,7 @@ main = hspec $ do
       groupId <- UUIDv4.nextRandom
       shouldBe (fromTransit (TransitArray [(TransitKeyword "braid.client/new-user")
                                           , TransitMap (M.fromList [ (TransitKeyword "id", TransitUUID userId)
-                                                                   , (TransitKeyword "group-ids", TransitArray [TransitUUID groupId])
+                                                                   , (TransitKeyword "group-ids", TransitList [TransitUUID groupId])
                                                                    ])
                                           ]))
                (NewUser [groupId] userId)

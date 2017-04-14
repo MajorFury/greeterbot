@@ -9,6 +9,7 @@ module Data.Transit (
   , _TransitUUID
   , _TransitString
   , _TransitArray
+  , _TransitList
 ) where
 
 import Prelude
@@ -36,6 +37,7 @@ data Transit = TransitNil
              | TransitInteger   Integer
              | TransitUUID      UU.UUID
              | TransitArray     [Transit]
+             | TransitList      [Transit]
              | TransitMap       (M.Map Transit Transit)
              | TransitExt       !Int8 B.ByteString
   deriving (Eq, Ord, Show)
@@ -92,6 +94,7 @@ transitFromArray [MP.ObjectString "~#u", MP.ObjectArray [MP.ObjectUInt hi64, MP.
 transitFromArray [MP.ObjectString "~#u", MP.ObjectArray [MP.ObjectInt hi64, MP.ObjectInt lo64]] = TransitUUID $ msgpackToUUID hi64 lo64
 transitFromArray [MP.ObjectString "~#u", MP.ObjectArray [MP.ObjectInt hi64, MP.ObjectUInt lo64]] = TransitUUID $ msgpackToUUID hi64 lo64
 transitFromArray [MP.ObjectString "~#u", MP.ObjectArray [MP.ObjectUInt hi64, MP.ObjectInt lo64]] = TransitUUID $ msgpackToUUID hi64 lo64
+transitFromArray [MP.ObjectString "~#list", MP.ObjectArray rest] = TransitList $ fmap toTransit rest
 transitFromArray obs = TransitArray $ fmap toTransit obs
 
 instance Transitable MP.Object where
@@ -114,6 +117,7 @@ instance Transitable MP.Object where
   fromTransit (TransitFloat f)   = MP.ObjectDouble $ realToFrac f
   fromTransit (TransitDecimal f)  = MP.ObjectDouble $ realToFrac f
   fromTransit (TransitArray obs) = MP.ObjectArray $ fmap fromTransit obs
+  fromTransit (TransitList obs) = MP.ObjectArray [MP.ObjectString (Enc.encodeUtf8 "~#list"), MP.ObjectArray $ fmap fromTransit obs]
   fromTransit (TransitMap m)     = MP.ObjectMap . M.fromList . fmap (bi fromTransit) . M.toList $ m
   fromTransit (TransitString t)  = MP.ObjectString $ Enc.encodeUtf8 t
   fromTransit (TransitBytes bs)  = MP.ObjectBinary bs
