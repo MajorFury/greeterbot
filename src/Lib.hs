@@ -56,4 +56,13 @@ handleMessage :: Config -> Message -> IO ()
 handleMessage conf msg = (responseTo msg) >>= sendMessage conf
 
 handleEvent ::  Config -> Event -> IO ()
-handleEvent _ evt = print evt
+handleEvent _ (NewUser grps user) = do print ("New User"::Text)
+                                       print grps
+                                       print user
+handleEvent _ (NewAdmin grp user) = do print ("New admin"::Text)
+                                       print grp
+                                       print user
+handleEvent _ (UserLeft grp user) = do print ("User left"::Text)
+                                       print grp
+                                       print user
+handleEvent _ (Other t) = print t
