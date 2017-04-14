@@ -35,7 +35,7 @@ main = do
             case readEvent msgBody of
               Nothing -> do status status500
                             text "Dunno lol"
-              Just msg -> do _ <- liftIO $ fork (handleEvent c msg)
+              Just evt -> do _ <- liftIO $ fork (handleEvent c evt)
                              status status200
                              text "ok"
           else
