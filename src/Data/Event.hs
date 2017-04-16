@@ -31,7 +31,7 @@ import Data.UUID
 type UserId = UUID
 type GroupId = UUID
 
-data Event = NewUser [GroupId] UserId
+data Event = NewUser GroupId UserId
            | NewAdmin GroupId UserId
            | UserLeft GroupId UserId
            | Other Transit
@@ -44,9 +44,7 @@ transitLookup :: (Control.Lens.Index m ~ Transit, Applicative f, At m) =>
 transitLookup k = at (TransitKeyword k) . _Just
 
 makeNewUser :: [Transit] -> Maybe Event
-makeNewUser [TransitMap m] = NewUser <$>
-                              Just (m ^.. transitLookup "group-ids" . _TransitList . each . _TransitUUID) <*>
-                              m ^? transitLookup "id" . _TransitUUID
+makeNewUser [TransitArray [TransitMap m, TransitUUID g]] = NewUser <$> Just g <*> m ^? transitLookup "id" . _TransitUUID
 makeNewUser _ = Nothing
 
 makeNewAdmin :: [Transit] -> Maybe Event

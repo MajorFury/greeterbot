@@ -13,6 +13,7 @@ import Data.Event (readEvent)
 import Data.Message (readMessage)
 import qualified Data.Yaml as Y
 import Lib (Config, botToken, handleEvent, handleMessage)
+import System.Exit (die)
 import Network.HTTP.Types.Status (status200, status400, status500)
 import Web.Scotty
 
@@ -25,7 +26,7 @@ main :: IO ()
 main = do
   conf <- Y.decodeFile "conf.yaml"
   case conf :: Maybe Config of
-    Nothing -> print ("Couldn't load config"::Text)
+    Nothing -> die "Couldn't load config"
     Just c -> do
       scotty 3030 $ do
         post "/event" $ do
