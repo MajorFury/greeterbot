@@ -38,7 +38,6 @@ data Event = NewUser GroupId UserId
   deriving (Eq, Show)
 makePrisms ''Event
 
---transitLookup :: Text -> Maybe Transit
 transitLookup :: (Control.Lens.Index m ~ Transit, Applicative f, At m) =>
                     Text -> (IxValue m -> f (IxValue m)) -> m -> f m
 transitLookup k = at (TransitKeyword k) . _Just

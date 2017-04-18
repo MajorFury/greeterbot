@@ -19,20 +19,22 @@ main = hspec $ do
                                                      , (TransitKeyword "content", TransitString "foobar")
                                                      , (TransitKeyword "mentioned-tag-ids", TransitArray [TransitUUID UUID.nil])
                                                      , (TransitKeyword "mentioned-user-ids", TransitArray [])]))
-               (Just $ Message { _messageId = UUID.nil
-                               , _messageGroupId = UUID.nil
-                               , _messageUserId  = UUID.nil
-                               , _messageThreadId  = UUID.nil
-                               , _messageContent  = "foobar"
-                               , _messageMentionedTags = [UUID.nil]
-                               , _messageMentionedUsers  = [] })
+               (Just Message { _messageId = UUID.nil
+                             , _messageGroupId = UUID.nil
+                             , _messageUserId  = UUID.nil
+                             , _messageThreadId  = UUID.nil
+                             , _messageContent  = "foobar"
+                             , _messageMentionedTags = [UUID.nil]
+                             , _messageMentionedUsers  = [] })
   describe "Event from Transit" $ do
     it "can parse an event from a transit map" $ do
       userId <- UUIDv4.nextRandom
       groupId <- UUIDv4.nextRandom
-      shouldBe (fromTransit (TransitArray [(TransitKeyword "braid.client/new-user")
-                                          , TransitMap (M.fromList [ (TransitKeyword "id", TransitUUID userId)
-                                                                   , (TransitKeyword "group-ids", TransitList [TransitUUID groupId])
+      shouldBe (fromTransit (TransitArray [ TransitKeyword "braid.client/new-user"
+                                          , TransitArray
+                                            [ TransitMap (M.fromList [ (TransitKeyword "id", TransitUUID userId)
+                                                                     , (TransitKeyword "group-ids", TransitList [TransitUUID groupId])
                                                                    ])
+                                            , TransitUUID groupId ]
                                           ]))
-               (NewUser [groupId] userId)
+               (NewUser groupId userId)

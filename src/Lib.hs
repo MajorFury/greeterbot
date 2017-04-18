@@ -49,27 +49,38 @@ responseTo m = do msgId <- UUID.nextRandom
 
 welcomeMessageContent :: UserId -> Text
 welcomeMessageContent userId = fold ["Welcome to Braid, @" , U.toText userId , "!\n"
-                                    , "I am the greeter bot"]
+                                    , "I am the greeter bot!\n"
+                                    , "It's kind of quiet right now, but someone will be here later!"]
 
-welcomeMessage :: UserId -> GroupId -> IO Message
-welcomeMessage userId groupId = do msgId <- UUID.nextRandom
-                                   threadId <- UUID.nextRandom
-                                   return Message { _messageContent = welcomeMessageContent userId
-                                                  , _messageId = msgId
-                                                  , _messageGroupId = groupId
-                                                  , _messageUserId = U.nil
-                                                  , _messageThreadId = threadId
-                                                  , _messageMentionedTags = []
-                                                  , _messageMentionedUsers = [userId]
-                                                  }
+newMessage :: UserId -> GroupId -> IO Message
+newMessage userId groupId = do msgId <- UUID.nextRandom
+                               threadId <- UUID.nextRandom
+                               return Message { _messageContent = ""
+                                              , _messageId = msgId
+                                              , _messageGroupId = groupId
+                                              , _messageUserId = U.nil
+                                              , _messageThreadId = threadId
+                                              , _messageMentionedTags = []
+                                              , _messageMentionedUsers = [userId]
+                                              }
+
+howToMessageContent :: Text
+howToMessageContent = fold ["Use the \"#\" character to begin autocompleting tags and \"@\" to mention other users.\n"
+                           ,"You can autocomplete emoji by typing \":\" and typing out the name - try typing \":smi\"!\n"
+                           ]
 
 handleMessage :: Config -> Message -> IO ()
 handleMessage conf msg = responseTo msg >>= sendMessage conf
 
 handleEvent ::  Config -> Event -> IO ()
 handleEvent conf (NewUser grp user) = do print ("New User"::Text)
-                                         msg <- welcomeMessage user grp
-                                         sendMessage conf msg
+                                         hiMsg <- newMessage user grp
+                                         let hiMsg' = hiMsg & messageContent .~ welcomeMessageContent user
+                                         sendMessage conf hiMsg'
+                                         howToMsg <- newMessage user grp
+                                         let howToMsg' = howToMsg & messageThreadId .~ (hiMsg ^. messageThreadId)
+                                         let howToMsg'' = howToMsg' & messageContent .~ howToMessageContent
+                                         sendMessage conf howToMsg''
 handleEvent _ (NewAdmin grp user) = do print ("New admin"::Text)
                                        print grp
                                        print user
