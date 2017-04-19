@@ -51,6 +51,7 @@ responseTo m = do msgId <- UUID.nextRandom
                                  , _messageMentionedUsers = [m ^. messageUserId]
                                  }
 
+-- TODO: make sure the message is actually public, not a response to the @-message we sent?
 handleMessage :: Config -> Message -> IO ()
 handleMessage conf msg = do saw <- didSeeUser $ msg ^. messageUserId
                             unless saw $ do
