@@ -4,6 +4,7 @@ module Main where
 
 import Prelude
 
+import Db (initDB)
 import Crypto.MAC.HMAC (hmac, hmacGetDigest)
 import Crypto.Hash (Digest)
 import Crypto.Hash.Algorithms (SHA256)
@@ -28,6 +29,7 @@ main = do
   case conf :: Maybe Config of
     Nothing -> die "Couldn't load config"
     Just c -> do
+      initDB
       scotty 3030 $ do
         post "/event" $ do
           msgBody <- body

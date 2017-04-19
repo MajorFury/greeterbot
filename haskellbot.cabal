@@ -16,6 +16,7 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     Lib
+                     , Db
                      , Data.Transit
                      , Data.Event
                      , Data.Message
@@ -31,6 +32,7 @@ library
                      , classy-prelude
                      , yaml
                      , wreq
+                     , sqlite-simple
   default-language:    Haskell2010
 
 executable haskellbot-exe

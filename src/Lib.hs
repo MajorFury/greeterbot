@@ -7,6 +7,7 @@ module Lib (
 
 import Prelude
 import Control.Lens
+import Db
 import Data.ByteString (ByteString)
 import Data.Event
 import Data.Message
@@ -51,7 +52,11 @@ responseTo m = do msgId <- UUID.nextRandom
                                  }
 
 handleMessage :: Config -> Message -> IO ()
-handleMessage conf msg = responseTo msg >>= sendMessage conf
+handleMessage conf msg = do saw <- didSeeUser $ msg ^. messageUserId
+                            unless saw $ do
+                              sawUser $ msg ^. messageUserId
+                              toSend <- responseTo msg
+                              sendMessage conf toSend
 
 -- Responding to events
 
