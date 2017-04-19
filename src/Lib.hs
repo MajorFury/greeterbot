@@ -35,17 +35,25 @@ sendMessage conf msg = do let body = dumpMessage $ Just msg
                           r <- postWith opts (braidUrl conf ++ "/bots/message") body
                           print r
 
+-- Responding to messages
+
 responseTo :: Message -> IO Message
 responseTo m = do msgId <- UUID.nextRandom
-                  threadId <- UUID.nextRandom
-                  return Message { _messageContent = "Hi, I am the greeter bot"
+                  return Message { _messageContent = fold ["Nice, @"
+                                                          , m ^. messageUserId . to U.toText
+                                                          , " you sent your first public message!"]
                                  , _messageId = msgId
                                  , _messageGroupId = m ^. messageGroupId
                                  , _messageUserId = U.nil
-                                 , _messageThreadId = threadId
+                                 , _messageThreadId = m ^. messageThreadId
                                  , _messageMentionedTags = []
                                  , _messageMentionedUsers = [m ^. messageUserId]
                                  }
+
+handleMessage :: Config -> Message -> IO ()
+handleMessage conf msg = responseTo msg >>= sendMessage conf
+
+-- Responding to events
 
 welcomeMessageContent :: UserId -> Text
 welcomeMessageContent userId = fold ["Welcome to Braid, @" , U.toText userId , "!\n"
@@ -68,9 +76,6 @@ howToMessageContent :: Text
 howToMessageContent = fold ["Use the \"#\" character to begin autocompleting tags and \"@\" to mention other users.\n"
                            ,"You can autocomplete emoji by typing \":\" and typing out the name - try typing \":smi\"!\n"
                            ]
-
-handleMessage :: Config -> Message -> IO ()
-handleMessage conf msg = responseTo msg >>= sendMessage conf
 
 handleEvent ::  Config -> Event -> IO ()
 handleEvent conf (NewUser grp user) = do print ("New User"::Text)
